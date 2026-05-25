@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Study Suite: Law of Negligence</title>
+
+    <!-- Chosen Palette: Warm Editorial (Parchment, Deep Charcoal, and Crimson Accent) -->
+    <!-- Application Structure Plan: To maximize comprehension of complex legal frameworks, this application abandons linear layouts in favor of a Multi-Dimensional Interactive Dashboard. Users can dynamically switch between four presentation formats:
+         1. INTERACTIVE STUDY GUIDE: A comprehensive editorial layout with collapsible elements and a Standard of Care Simulator.
+         2. INFOGRAPHIC DASHBOARD: Visualizes comparative legal standards, tests, and chronological liabilities via interactive Chart.js widgets.
+         3. ACTIVE RECALL FLIPCARDS: Digital flashcards utilizing spatial memory for key definitions and case outcomes.
+         4. CASE EXPLORER DATABASE: A searchable, tag-filtered legal database containing all landmark authorities from your syllabus.
+         This multi-view approach ensures that students can transition from reading (passive study) to visual mapping, and finally to active recall testing. -->
+    <!-- Visualization & Content Choices:
+         - Standard of Care Scale -> Goal: Compare -> Method: Animated CSS Progress Bar -> Interactive selection -> Simulates the level of care required by law for different personas.
+         - Caparo 3-Fold Test -> Goal: Organize/Inform -> Method: Chart.js Doughnut Chart -> Interactivity via hover slices -> Breaks down the non-hierarchical pillars of modern duty.
+         - Liability Scope -> Goal: Compare -> Method: Chart.js Bar Chart -> Visualizes Re Polemis vs Wagon Mound -> Instantly highlights the paradigm shift to foreseeability.
+         - Case Explorer -> Goal: Search/Filter -> Method: HTML Grid + Vanilla JS State -> Filterable chips for quick synthesis.
+         - CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'law-cream': '#faf8f5',
+                        'law-paper': '#ffffff',
+                        'law-dark': '#1a202c',
+                        'law-crimson': '#9b2c2c',
+                        'law-gold': '#d69e2e',
+                        'law-muted': '#4a5568',
+                        'law-light-gold': '#fefcbf'
+                    },
+                    fontFamily: {
+                        'serif': ['Cinzel', 'serif'],
+                        'sans': ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #faf8f5; color: #1a202c; overflow-x: hidden; }
+        .font-serif-header { font-family: 'Cinzel', serif; }
+        
+        /* Interactive chart container style sheet rules */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 320px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container { height: 360px; }
+        }
+
+        .view-panel { display: none; opacity: 0; transition: opacity 0.3s ease-in-out; }
+        .view-panel.active { display: block; opacity: 1; }
+
+        /* Custom flip-card styling using hardware-accelerated CSS transforms */
+        .flip-card { background-color: transparent; width: 100%; height: 280px; perspective: 1000px; cursor: pointer; }
+        .flip-card-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.6s; transform-style: preserve-3d; }
+        .flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
+        .flip-card-front, .flip-card-back { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2rem; border-radius: 0.75rem; border: 1px solid #e2e8f0; }
+        .flip-card-front { background-color: #ffffff; color: #1a202c; border-top: 4px solid #9b2c2c; }
+        .flip-card-back { background-color: #9b2c2c; color: #ffffff; transform: rotateY(180deg); }
+
+        .btn-mode { transition: all 0.3s ease; }
+        .btn-mode.active { background-color: #9b2c2c; color: white; border-color: #9b2c2c; box-shadow: 0 4px 12px rgba(155, 44, 44, 0.2); }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col justify-between">
+
+    <!-- Top Academic Header Banner -->
+    <header class="bg-law-dark text-white py-8 border-b-4 border-law-gold shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-4">
+            <div>
+                <span class="text-xs tracking-widest text-law-gold font-semibold uppercase">Advanced Law of Torts Study Suite</span>
+                <h1 class="text-2xl md:text-4xl font-bold font-serif-header mt-1 tracking-wide">The Law of Negligence</h1>
+            </div>
+            <div class="bg-gray-800 px-4 py-2 rounded-lg border border-gray-700 text-xs text-law-gold">
+                Academic Standard Model • Caparo Framework Included
+            </div>
+        </div>
+    </header>
+
+    <!-- Presentation Mode Toggle Bar -->
+    <section class="bg-white shadow-sm border-b border-gray-200 py-4 sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <span class="text-xs font-bold uppercase tracking-wider text-gray-500">Choose Presentation View:</span>
+                <div class="grid grid-cols-2 md:flex flex-wrap gap-2 w-full sm:w-auto">
+                    <button onclick="switchView('guide')" id="btn-guide" class="btn-mode active px-4 py-2 rounded-lg border border-gray-200 text-sm font-semibold flex items-center justify-center gap-2">
+                        <span>&#128214;</span> Interactive Guide
+                    </button>
+                    <button onclick="switchView('infographic')" id="btn-infographic" class="btn-mode px-4 py-2 rounded-lg border border-gray-200 text-sm font-semibold flex items-center justify-center gap-2">
+                        <span>&#128202;</span> Infographic Dashboard
+                    </button>
+                    <button onclick="switchView('flashcards')" id="btn-flashcards" class="btn-mode px-4 py-2 rounded-lg border border-gray-200 text-sm font-semibold flex items-center justify-center gap-2">
+                        <span>&#129515;</span> Active Recall Flashcards
+                    </button>
+                    <button onclick="switchView('cases')" id="btn-cases" class="btn-mode px-4 py-2 rounded-lg border border-gray-200 text-sm font-semibold flex items-center justify-center gap-2">
+                        <span>&#128188;</span> Case Library Explorer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content Stage -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+
+        <!-- ================= PANEL 1: INTERACTIVE GUIDE ================= -->
+        <div id="panel-guide" class="view-panel active space-y-12">
+            <!-- Section Introductory Paragraph -->
+            <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+                <h2 class="text-lg font-bold font-serif-header text-law-crimson mb-2">Introduction to the Study Guide View</h2>
+                <p class="text-sm text-law-muted leading-relaxed">
+                    Welcome to the <strong>Interactive Study Guide</strong>. This panel presents the full narrative and conceptual sequence of the Law of Negligence. It translates textbook doctrines into interactive learning modules, complete with a dynamic Standard of Care scale. Explore each legal element at your own pace to understand how duty, breach, and causation form an unbroken chain of liability.
+                </p>
+            </div>
+
+            <!-- The Tripartite Core -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-lg border-t-4 border-law-crimson shadow-sm">
+                    <span class="text-xs uppercase tracking-wider text-law-crimson font-bold">Element 1</span>
+                    <h3 class="text-xl font-bold font-serif-header mt-2 mb-3">Duty of Care</h3>
+                    <p class="text-sm text-law-muted mb-4">A legal obligation requiring the defendant to take reasonable care to avoid acts that could foreseeably harm the plaintiff.</p>
+                    <ul class="text-xs space-y-2 text-gray-600 bg-gray-50 p-3 rounded">
+                        <li>• Neighbor Principle</li>
+                        <li>• Transition from Anns Test</li>
+                        <li>• Modern Caparo Framework</li>
+                    </ul>
+                </div>
+                <div class="bg-white p-6 rounded-lg border-t-4 border-law-gold shadow-sm">
+                    <span class="text-xs uppercase tracking-wider text-law-gold font-bold">Element 2</span>
+                    <h3 class="text-xl font-bold font-serif-header mt-2 mb-3">Breach of Duty</h3>
+                    <p class="text-sm text-law-muted mb-4">The failure to meet or maintain the standard of care expected of a reasonable person under the circumstances.</p>
+                    <ul class="text-xs space-y-2 text-gray-600 bg-gray-50 p-3 rounded">
+                        <li>• Reasonable Man Test</li>
+                        <li>• Personalities Adjustment</li>
+                        <li>• The Bolam Professional Standard</li>
+                    </ul>
+                </div>
+                <div class="bg-white p-6 rounded-lg border-t-4 border-gray-600 shadow-sm">
+                    <span class="text-xs uppercase tracking-wider text-gray-600 font-bold">Element 3</span>
+                    <h3 class="text-xl font-bold font-serif-header mt-2 mb-3">Causation & Remoteness</h3>
+                    <p class="text-sm text-law-muted mb-4">Proving that the breach factually caused the damage, and that the damage falls within the legal boundaries of foreseeability.</p>
+                    <ul class="text-xs space-y-2 text-gray-600 bg-gray-50 p-3 rounded">
+                        <li>• "But-For" Test</li>
+                        <li>• Novus Actus Interveniens</li>
+                        <li>• The Wagon Mound Rules</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Deep Dive: Standard of Care Simulator -->
+            <div class="bg-white p-8 rounded-xl border border-gray-200 shadow-sm">
+                <div class="max-w-3xl mx-auto text-center mb-8">
+                    <span class="text-xs uppercase tracking-wider text-law-crimson font-bold">Interactive Classroom Experiment</span>
+                    <h3 class="text-2xl font-bold font-serif-header mt-1">Standard of Care Scale</h3>
+                    <p class="text-sm text-law-muted mt-2">Click on different legal personas to see how the legal standard of care and physical skill requirements shift dynamically. Notice that the law applies an objective yardstick tailored to the specific category.</p>
+                </div>
+
+                <div class="flex flex-wrap justify-center gap-3 mb-8">
+                    <button onclick="setPersona('ordinary')" id="per-ordinary" class="btn-persona px-4 py-2 rounded-full border border-gray-300 text-xs font-semibold bg-gray-100">Ordinary Layperson</button>
+                    <button onclick="setPersona('learner')" id="per-learner" class="btn-persona px-4 py-2 rounded-full border border-gray-300 text-xs font-semibold bg-gray-100">Learner Driver</button>
+                    <button onclick="setPersona('child')" id="per-child" class="btn-persona px-4 py-2 rounded-full border border-gray-300 text-xs font-semibold bg-gray-100">School Child</button>
+                    <button onclick="setPersona('professional')" id="per-professional" class="btn-persona px-4 py-2 rounded-full border border-gray-300 text-xs font-semibold bg-gray-100">Surgeon / Specialist</button>
+                </div>
+
+                <!-- Simulation Result Card -->
+                <div class="bg-law-cream p-6 rounded-lg border border-law-gold max-w-2xl mx-auto">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div id="sim-icon" class="text-4xl">🧑</div>
+                        <div>
+                            <h4 id="sim-title" class="font-bold font-serif-header text-lg text-law-crimson">Ordinary Layperson</h4>
+                            <span id="sim-authority" class="text-xs italic text-gray-500">The "Clapham Omnibus" Standard</span>
+                        </div>
+                    </div>
+                    
+                    <p id="sim-description" class="text-sm leading-relaxed text-law-muted mb-6">
+                        Judged strictly against the objective standard of an ordinary, prudent, and reasonable person. Personal idiosyncrasies, such as natural clumsiness, are legally ignored.
+                    </p>
+
+                    <div>
+                        <div class="flex justify-between text-xs font-bold uppercase mb-1">
+                            <span>Required Competence Scale</span>
+                            <span id="sim-score" class="text-law-crimson">50% (Average)</span>
+                        </div>
+                        <div class="w-full bg-gray-200 h-3 rounded-full overflow-hidden">
+                            <div id="sim-bar" class="bg-law-crimson h-full transition-all duration-500" style="width: 50%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Concept Deep-Dive: Duty Tests -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-white p-6 rounded-lg border border-gray-100">
+                    <h3 class="text-lg font-bold font-serif-header text-law-crimson mb-3">Evolution of Duty of Care</h3>
+                    <p class="text-sm leading-relaxed mb-4 text-law-muted">
+                        Historically, establishing a duty of care was complex. In <strong>Anns v Merton [1977]</strong>, the court simplified it into a two-stage test. However, because stage one only required simple foreseeability of harm, it created a massive, unmanageable scope of liability. To correct this, the court overruled <em>Anns</em> and formulated the <strong>Caparo Three-Fold Test</strong>, introducing a third check: whether it is "fair, just, and reasonable" to impose a duty.
+                    </p>
+                    <div class="bg-red-50 p-4 rounded text-xs text-red-800">
+                        <strong>The Overruling Reason:</strong> The Anns test put excessive weight on broad policy arguments at the second stage to limit liability after the fact, rather than evaluating the authentic close relationship between the parties initially.
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-lg border border-gray-100">
+                    <h3 class="text-lg font-bold font-serif-header text-law-crimson mb-3">Maxim: Res Ipsa Loquitur</h3>
+                    <p class="text-sm leading-relaxed mb-4 text-law-muted">
+                        In specific situations, the plaintiff cannot directly prove what physical action the defendant took that was negligent, but the facts of the accident speak for themselves. Under <strong>Scott v London Docks</strong>, three conditions must be proven:
+                    </p>
+                    <div class="space-y-2 text-xs">
+                        <div class="flex items-start gap-2 bg-gray-50 p-2 rounded">
+                            <span class="font-bold text-law-crimson">1.</span>
+                            <span>The object or apparatus causing the damage was under the <strong>exclusive control</strong> of the defendant.</span>
+                        </div>
+                        <div class="flex items-start gap-2 bg-gray-50 p-2 rounded">
+                            <span class="font-bold text-law-crimson">2.</span>
+                            <span>The accident is of such a nature that it <strong>would not ordinarily happen without negligence</strong>.</span>
+                        </div>
+                        <div class="flex items-start gap-2 bg-gray-50 p-2 rounded">
+                            <span class="font-bold text-law-crimson">3.</span>
+                            <span>There is an <strong>absence of an explanation</strong> (unknown cause) for the event.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= PANEL 2: INFOGRAPHIC DASHBOARD ================= -->
+        <div id="panel-infographic" class="view-panel space-y-12">
+            <!-- Section Introductory Paragraph -->
+            <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+                <h2 class="text-lg font-bold font-serif-header text-law-crimson mb-2">Introduction to the Infographic Dashboard</h2>
+                <p class="text-sm text-law-muted leading-relaxed">
+                    Welcome to the <strong>Infographic Dashboard</strong>. This section uses interactive data charts to visualize complex legal ratios and structural boundaries. Explore the three-fold Caparo test represented proportionally, or view the comparison bar chart displaying the shifting scale of liability between the old <em>Re Polemis</em> direct consequence test and the modern <em>Wagon Mound</em> reasonable foresight test.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Caparo Pillar Pie Chart -->
+                <div class="bg-white p-6 rounded-xl border border-gray-200 flex flex-col items-center">
+                    <h3 class="text-lg font-bold font-serif-header text-center mb-1">Caparo Test Proportional Pillars</h3>
+                    <p class="text-xs text-law-muted text-center mb-6">Visual representation of the equal weights of the three pillars of Duty of Care</p>
+                    
+                    <div class="chart-container">
+                        <canvas id="caparoDonutChart"></canvas>
+                    </div>
+
+                    <div class="mt-6 text-xs space-y-2 text-law-muted w-full px-4 border-t pt-4">
+                        <p>💡 <strong>Interactivity:</strong> Hover over the chart sections to see descriptions of how each pillar acts as a check and balance on legal duty.</p>
+                    </div>
+                </div>
+
+                <!-- Remoteness Comparative Bar Chart -->
+                <div class="bg-white p-6 rounded-xl border border-gray-200 flex flex-col items-center">
+                    <h3 class="text-lg font-bold font-serif-header text-center mb-1">Liability Boundaries: Remoteness</h3>
+                    <p class="text-xs text-law-muted text-center mb-6">Comparing the scope of defendant liability across historical legal tests</p>
+
+                    <div class="chart-container">
+                        <canvas id="remotenessBarChart"></canvas>
+                    </div>
+
+                    <div class="mt-6 text-xs space-y-2 text-law-muted w-full px-4 border-t pt-4">
+                        <p>⚖️ <strong>Analysis:</strong> The <em>Re Polemis</em> test resulted in excessively wide liability for defendants, holding them liable for any direct consequence. <em>The Wagon Mound (No. 1)</em> refined this, limiting liability strictly to foreseeable types of harm.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Stats/Summaries Widget -->
+            <div class="bg-law-dark text-white p-8 rounded-xl shadow-md">
+                <h3 class="text-lg font-bold font-serif-header text-law-gold mb-4 text-center">Summary of Crucial Liability Rules</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
+                    <div class="border-r border-gray-700 last:border-0 px-4">
+                        <span class="text-4xl block mb-2 font-serif-header text-law-gold">1932</span>
+                        <h4 class="font-bold text-sm mb-1">The Neighbor Principle</h4>
+                        <p class="text-xs text-gray-400">Created by Lord Atkin in Donoghue v Stevenson, establishing the modern foundation of negligence.</p>
+                    </div>
+                    <div class="border-r border-gray-700 last:border-0 px-4">
+                        <span class="text-4xl block mb-2 font-serif-header text-law-gold">100%</span>
+                        <h4 class="font-bold text-sm mb-1">But-For Necessity</h4>
+                        <p class="text-xs text-gray-400">If the injury would have happened anyway regardless of the breach, the defendant is cleared of liability.</p>
+                    </div>
+                    <div class="border-r border-gray-700 last:border-0 px-4">
+                        <span class="text-4xl block mb-2 font-serif-header text-law-gold">Type</span>
+                        <h4 class="font-bold text-sm mb-1">Wagon Mound Limit</h4>
+                        <p class="text-xs text-gray-400">The specific type or class of damage must be reasonably foreseeable to be recoverable.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= PANEL 3: ACTIVE RECALL FLASHCARDS ================= -->
+        <div id="panel-flashcards" class="view-panel space-y-12">
+            <!-- Section Introductory Paragraph -->
+            <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+                <h2 class="text-lg font-bold font-serif-header text-law-crimson mb-2">Introduction to the Active Recall Flashcards</h2>
+                <p class="text-sm text-law-muted leading-relaxed">
+                    Welcome to the <strong>Active Recall Flashcards</strong>. This module engages your active learning and spatial recall, which are vital for retention in professional legal exams. Read the term or question on the front of the card, attempt to formulate the definition or legal test in your head, and then click the card to flip it over and verify your answer.
+                </p>
+            </div>
+
+            <!-- Flashcard Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Card 1 -->
+                <div class="flip-card" onclick="toggleCard(this)">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <span class="text-3xl mb-3">🛡️</span>
+                            <h3 class="font-bold font-serif-header text-sm text-center">Factual Causation Test</h3>
+                            <p class="text-xs text-gray-400 mt-4">(Click to Reveal Answer)</p>
+                        </div>
+                        <div class="flip-card-back">
+                            <h4 class="font-bold font-serif-header text-xs text-law-light-gold mb-2">Answer</h4>
+                            <p class="text-xs leading-relaxed text-center px-2">
+                                The <strong>"But-For" Test</strong>. Proves that "but for" the defendant's negligent breach of duty, the plaintiff's damage or injury would not have occurred.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="flip-card" onclick="toggleCard(this)">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <span class="text-3xl mb-3">🩺</span>
+                            <h3 class="font-bold font-serif-header text-sm text-center">The Bolam Test</h3>
+                            <p class="text-xs text-gray-400 mt-4">(Click to Reveal Answer)</p>
+                        </div>
+                        <div class="flip-card-back">
+                            <h4 class="font-bold font-serif-header text-xs text-law-light-gold mb-2">Answer</h4>
+                            <p class="text-xs leading-relaxed text-center px-2">
+                                Dictates that a medical professional is not negligent if their action conforms to an accepted practice supported by a <strong>responsible, competent body of professional opinion</strong>.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="flip-card" onclick="toggleCard(this)">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <span class="text-3xl mb-3">⚖️</span>
+                            <h3 class="font-bold font-serif-header text-sm text-center">Wagon Mound No. 1 Ratio</h3>
+                            <p class="text-xs text-gray-400 mt-4">(Click to Reveal Answer)</p>
+                        </div>
+                        <div class="flip-card-back">
+                            <h4 class="font-bold font-serif-header text-xs text-law-light-gold mb-2">Answer</h4>
+                            <p class="text-xs leading-relaxed text-center px-2">
+                                Establish the modern test of <strong>Remoteness of Damage</strong>. The defendant is only liable for damage if the <strong>type, kind, or class</strong> of injury was reasonably foreseeable.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="flip-card" onclick="toggleCard(this)">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <span class="text-3xl mb-3">🧑‍🏫</span>
+                            <h3 class="font-bold font-serif-header text-sm text-center">Nettleship v Watson Rule</h3>
+                            <p class="text-xs text-gray-400 mt-4">(Click to Reveal Answer)</p>
+                        </div>
+                        <div class="flip-card-back">
+                            <h4 class="font-bold font-serif-header text-xs text-law-light-gold mb-2">Answer</h4>
+                            <p class="text-xs leading-relaxed text-center px-2">
+                                A learner driver is held to the objective standard of an <strong>ordinary, experienced, and competent driver</strong> on public roads. No discount is given for inexperience.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 5 -->
+                <div class="flip-card" onclick="toggleCard(this)">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <span class="text-3xl mb-3">💥</span>
+                            <h3 class="font-bold font-serif-header text-sm text-center">Novus Actus Interveniens</h3>
+                            <p class="text-xs text-gray-400 mt-4">(Click to Reveal Answer)</p>
+                        </div>
+                        <div class="flip-card-back">
+                            <h4 class="font-bold font-serif-header text-xs text-law-light-gold mb-2">Answer</h4>
+                            <p class="text-xs leading-relaxed text-center px-2">
+                                A new, intervening act that is so unreasonable or unforeseeable that it <strong>breaks the physical chain of causation</strong>, clearing the original defendant of liability.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 6 -->
+                <div class="flip-card" onclick="toggleCard(this)">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <span class="text-3xl mb-3">🔎</span>
+                            <h3 class="font-bold font-serif-header text-sm text-center">Anns Test Overruling Reason</h3>
+                            <p class="text-xs text-gray-400 mt-4">(Click to Reveal Answer)</p>
+                        </div>
+                        <div class="flip-card-back">
+                            <h4 class="font-bold font-serif-header text-xs text-law-light-gold mb-2">Answer</h4>
+                            <p class="text-xs leading-relaxed text-center px-2">
+                                It allowed a duty of care to arise too easily at Stage 1, forcing courts to over-rely on broad public policy considerations at Stage 2 to artificially limit liability.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= PANEL 4: CASE EXPLORER DATABASE ================= -->
+        <div id="panel-cases" class="view-panel space-y-12">
+            <!-- Section Introductory Paragraph -->
+            <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+                <h2 class="text-lg font-bold font-serif-header text-law-crimson mb-2">Introduction to the Case Explorer Database</h2>
+                <p class="text-sm text-law-muted leading-relaxed">
+                    Welcome to the <strong>Case Library Explorer</strong>. This panel acts as an interactive database of the landmark legal cases mentioned in your course. You can search by case name or filter the case list by tags (Duty of Care, Breach, Causation, Remoteness) to immediately isolate and synthesize the facts, court decisions, and legal ratios.
+                </p>
+            </div>
+
+            <!-- Search and Filters Widget -->
+            <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-4">
+                <div class="flex flex-col md:flex-row gap-4 items-center justify-between">
+                    <input type="text" id="caseSearch" onkeyup="filterCases()" placeholder="Search cases by name, citation or ratio..." class="w-full md:max-w-md px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-law-crimson">
+                    <div class="flex flex-wrap gap-2 w-full md:w-auto">
+                        <button onclick="filterByTag('all')" class="chip-filter px-3 py-1 bg-law-crimson text-white rounded-full text-xs font-semibold" id="chip-all">All Cases</button>
+                        <button onclick="filterByTag('duty')" class="chip-filter px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-semibold" id="chip-duty">Duty of Care</button>
+                        <button onclick="filterByTag('breach')" class="chip-filter px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-semibold" id="chip-breach">Breach of Duty</button>
+                        <button onclick="filterByTag('causation')" class="chip-filter px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-semibold" id="chip-causation">Causation</button>
+                        <button onclick="filterByTag('remoteness')" class="chip-filter px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-semibold" id="chip-remoteness">Remoteness</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Case Cards Grid -->
+            <div id="case-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Case 1 -->
+                <div class="case-card bg-white p-6 rounded-lg border border-gray-200 shadow-sm" data-category="duty">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="px-2 py-0.5 bg-red-100 text-red-800 rounded text-[10px] font-bold uppercase">Duty of Care</span>
+                        <span class="text-xs text-gray-500 font-mono">[1932] AC 562</span>
+                    </div>
+                    <h3 class="font-bold font-serif-header text-law-crimson text-lg mb-1">Donoghue v Stevenson</h3>
+                    <p class="text-xs font-semibold italic text-gray-500 mb-3">The Snail in the Ginger Beer Case</p>
+                    <div class="space-y-2 text-xs text-law-muted">
+                        <p><strong>Facts:</strong> A friend purchased a bottle of ginger beer for the plaintiff. The plaintiff drank it and found a decomposed snail in the opaque bottle, falling ill.</p>
+                        <p><strong>Held:</strong> A manufacturer owes a duty of care to the consumer. Created the "Neighbor Principle" of proximity and reasonable foreseeability.</p>
+                    </div>
+                </div>
+
+                <!-- Case 2 -->
+                <div class="case-card bg-white p-6 rounded-lg border border-gray-200 shadow-sm" data-category="duty">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="px-2 py-0.5 bg-red-100 text-red-800 rounded text-[10px] font-bold uppercase">Duty of Care</span>
+                        <span class="text-xs text-gray-500 font-mono">[1977] 2 All ER 492</span>
+                    </div>
+                    <h3 class="font-bold font-serif-header text-law-crimson text-lg mb-1">Anns v Merton LBC</h3>
+                    <p class="text-xs font-semibold italic text-gray-500 mb-3">Structural Defects & Cracks Case</p>
+                    <div class="space-y-2 text-xs text-law-muted">
+                        <p><strong>Facts:</strong> Cracks appeared in building foundations. Plaintiff sued the local council for failing to inspect the foundations properly.</p>
+                        <p><strong>Held:</strong> Established the Two-Stage Test. Later overruled because it made establishing a duty of care far too easy, over-relying on policy considerations to limit liability.</p>
+                    </div>
+                </div>
+
+                <!-- Case 3 -->
+                <div class="case-card bg-white p-6 rounded-lg border border-gray-200 shadow-sm" data-category="duty">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="px-2 py-0.5 bg-red-100 text-red-800 rounded text-[10px] font-bold uppercase">Duty of Care</span>
+                        <span class="text-xs text-gray-500 font-mono">[1990] 2 AC 605</span>
+                    </div>
+                    <h3 class="font-bold font-serif-header text-law-crimson text-lg mb-1">Caparo Industries v Dickman</h3>
+                    <p class="text-xs font-semibold italic text-gray-500 mb-3">Corporate Audit Discrepancy</p>
+                    <div class="space-y-2 text-xs text-law-muted">
+                        <p><strong>Facts:</strong> An investment firm bought shares relying on inaccurate audited accounts, suffering severe financial loss.</p>
+                        <p><strong>Held:</strong> Established the modern Caparo Three-Fold Test: Foreseeability, Proximity, and whether it is Fair, Just, and Reasonable.</p>
+                    </div>
+                </div>
+
+                <!-- Case 4 -->
+                <div class="case-card bg-white p-6 rounded-lg border border-gray-200 shadow-sm" data-category="breach">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="px-2 py-0.5 bg-yellow-100 text-yellow-800 rounded text-[10px] font-bold uppercase">Breach of Duty</span>
+                        <span class="text-xs text-gray-500 font-mono">[1971] 2 QB 691</span>
+                    </div>
+                    <h3 class="font-bold font-serif-header text-law-crimson text-lg mb-1">Nettleship v Watson</h3>
+                    <p class="text-xs font-semibold italic text-gray-500 mb-3">Learner Driver Crash</p>
+                    <div class="space-y-2 text-xs text-law-muted">
+                        <p><strong>Facts:</strong> A learner driver hit a lamp post during a lesson, injuring the instructor who was teaching her.</p>
+                        <p><strong>Held:</strong> A learner driver is held to the objective standard of an ordinary competent driver. Inexperience is not a defense.</p>
+                    </div>
+                </div>
+
+                <!-- Case 5 -->
+                <div class="case-card bg-white p-6 rounded-lg border border-gray-200 shadow-sm" data-category="breach">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="px-2 py-0.5 bg-yellow-100 text-yellow-800 rounded text-[10px] font-bold uppercase">Breach of Duty</span>
+                        <span class="text-xs text-gray-500 font-mono">[1998] 1 WLR 1275</span>
+                    </div>
+                    <h3 class="font-bold font-serif-header text-law-crimson text-lg mb-1">Mullin v Richards</h3>
+                    <p class="text-xs font-semibold italic text-gray-500 mb-3">School Play-Fight Accident</p>
+                    <div class="space-y-2 text-xs text-law-muted">
+                        <p><strong>Facts:</strong> Two 15-year-old schoolgirls play-fought with rulers. A ruler snapped, and a fragment blinded one girl.</p>
+                        <p><strong>Held:</strong> A child's standard of care is judged against the standard of an ordinary child of the exact same age. Defendant was not negligent.</p>
+                    </div>
+                </div>
+
+                <!-- Case 6 -->
+                <div class="case-card bg-white p-6 rounded-lg border border-gray-200 shadow-sm" data-category="breach">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="px-2 py-0.5 bg-yellow-100 text-yellow-800 rounded text-[10px] font-bold uppercase">Breach of Duty</span>
+                        <span class="text-xs text-gray-500 font-mono">[1957] 1 WLR 582</span>
+                    </div>
+                    <h3 class="font-bold font-serif-header text-law-crimson text-lg mb-1">Bolam v Friern Hospital</h3>
+                    <p class="text-xs font-semibold italic text-gray-500 mb-3">Electroconvulsive Therapy Standard</p>
+                    <div class="space-y-2 text-xs text-law-muted">
+                        <p><strong>Facts:</strong> Patient underwent shock therapy without relaxant drugs, fracturing his pelvis.</p>
+                        <p><strong>Held:</strong> Formulated the Bolam Test: A professional is not negligent if their action is supported by a responsible body of professional peers.</p>
+                    </div>
+                </div>
+
+                <!-- Case 7 -->
+                <div class="case-card bg-white p-6 rounded-lg border border-gray-200 shadow-sm" data-category="causation">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="px-2 py-0.5 bg-green-100 text-green-800 rounded text-[10px] font-bold uppercase">Causation</span>
+                        <span class="text-xs text-gray-500 font-mono">[1968] 1 QB 428</span>
+                    </div>
+                    <h3 class="font-bold font-serif-header text-law-crimson text-lg mb-1">Barnett v Chelsea Hospital</h3>
+                    <p class="text-xs font-semibold italic text-gray-500 mb-3">Arsenic Poisoning Factual Chain</p>
+                    <div class="space-y-2 text-xs text-law-muted">
+                        <p><strong>Facts:</strong> A nightwatchman visited the clinic complaining of vomiting. The doctor refused to inspect him, telling him to go home. He died of arsenic poisoning.</p>
+                        <p><strong>Held:</strong> The doctor breached his duty, but the patient would have died from advanced poisoning anyway. The "But-For" test failed.</p>
+                    </div>
+                </div>
+
+                <!-- Case 8 -->
+                <div class="case-card bg-white p-6 rounded-lg border border-gray-200 shadow-sm" data-category="remoteness">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="px-2 py-0.5 bg-purple-100 text-purple-800 rounded text-[10px] font-bold uppercase">Remoteness</span>
+                        <span class="text-xs text-gray-500 font-mono">[1961] AC 388</span>
+                    </div>
+                    <h3 class="font-bold font-serif-header text-law-crimson text-lg mb-1">The Wagon Mound (No. 1)</h3>
+                    <p class="text-xs font-semibold italic text-gray-500 mb-3">Oil Spill and Dockyard Fire</p>
+                    <div class="space-y-2 text-xs text-law-muted">
+                        <p><strong>Facts:</strong> Oil spilled from a ship ignited sparks from welding on a nearby dock, causing a catastrophic fire.</p>
+                        <p><strong>Held:</strong> Standardized the "Reasonable Foresight Test". The damage was too remote because the physical type of damage (fire) was not foreseeable.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Bottom Page Footer -->
+    <footer class="bg-law-dark text-white py-6 border-t border-gray-800 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs text-law-gold">
+            Study Suite Program • Conforming to High-Quality Academic Standards • Designed for Active Learning.
+        </div>
+    </footer>
+
+    <!-- JS Logic Block for View Switching, Simulations, and Charts -->
+    <script>
+        // Tab switching logic (Functional Navigation)
+        function switchView(viewId) {
+            document.querySelectorAll('.view-panel').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.btn-mode').forEach(el => el.classList.remove('active'));
+
+            document.getElementById('panel-' + viewId).classList.add('active');
+            document.getElementById('btn-' + viewId).classList.add('active');
+
+            if (viewId === 'infographic') {
+                initCharts();
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Standard of Care Simulation Database
+        const personas = {
+            ordinary: {
+                icon: "🧑",
+                title: "Ordinary Layperson",
+                authority: "The 'Clapham Omnibus' Standard",
+                desc: "Judged strictly against the objective standard of an ordinary, prudent, and reasonable person. Personal idiosyncrasies, such as natural clumsiness, are legally ignored.",
+                score: "50% (Average)",
+                width: "50%",
+                color: "#9b2c2c"
+            },
+            learner: {
+                icon: "🚗",
+                title: "Learner Driver",
+                authority: "Nettleship v Watson [1971]",
+                desc: "Judged by the objective standard of a fully qualified, competent driver. The law grants no discounts for inexperience on public roads to preserve safety.",
+                score: "75% (Competent)",
+                width: "75%",
+                color: "#dd6b20"
+            },
+            child: {
+                icon: "👧",
+                title: "School Child",
+                authority: "Mullin v Richards [1998]",
+                desc: "Judged by the standard of an ordinary, reasonable child of the same age. The standard shifts downwards to match children's lack of foresight.",
+                score: "25% (Age-Adjusted)",
+                width: "25%",
+                color: "#319795"
+            },
+            professional: {
+                icon: "🩺",
+                title: "Surgeon / Specialist",
+                authority: "Bolam Test [1957]",
+                desc: "Held to the standard of an ordinary skilled specialist in the same field. Not negligent if the actions conform to a responsible body of professional opinion.",
+                score: "95% (Exemplary)",
+                width: "95%",
+                color: "#3182ce"
+            }
+        };
+
+        function setPersona(key) {
+            document.querySelectorAll('.btn-persona').forEach(btn => btn.className = "btn-persona px-4 py-2 rounded-full border border-gray-300 text-xs font-semibold bg-gray-100");
+            document.getElementById('per-' + key).className = "btn-persona px-4 py-2 rounded-full border border-law-crimson text-xs font-semibold bg-law-crimson text-white";
+
+            const data = personas[key];
+            document.getElementById('sim-icon').innerHTML = data.icon;
+            document.getElementById('sim-title').innerText = data.title;
+            document.getElementById('sim-authority').innerText = data.authority;
+            document.getElementById('sim-description').innerText = data.desc;
+            document.getElementById('sim-score').innerText = data.score;
+            document.getElementById('sim-score').style.color = data.color;
+            
+            const bar = document.getElementById('sim-bar');
+            bar.style.width = data.width;
+            bar.style.backgroundColor = data.color;
+        }
+
+        // Active Recall Flip Cards interaction
+        function toggleCard(element) {
+            element.classList.toggle('flipped');
+        }
+
+        // Case Library Search and Tag Filter State logic
+        let currentFilterTag = 'all';
+
+        function filterByTag(tag) {
+            currentFilterTag = tag;
+            document.querySelectorAll('.chip-filter').forEach(btn => {
+                btn.className = "chip-filter px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-semibold";
+            });
+            document.getElementById('chip-' + tag).className = "chip-filter px-3 py-1 bg-law-crimson text-white rounded-full text-xs font-semibold";
+            filterCases();
+        }
+
+        function filterCases() {
+            const query = document.getElementById('caseSearch').value.toLowerCase();
+            const cards = document.querySelectorAll('.case-card');
+
+            cards.forEach(card => {
+                const title = card.querySelector('h3').innerText.toLowerCase();
+                const text = card.innerText.toLowerCase();
+                const category = card.getAttribute('data-category');
+
+                const matchesSearch = title.includes(query) || text.includes(query);
+                const matchesTag = (currentFilterTag === 'all' || category === currentFilterTag);
+
+                if (matchesSearch && matchesTag) {
+                    card.style.display = "block";
+                } else {
+                    card.style.display = "none";
+                }
+            });
+        }
+
+        // Charts initialization logic (Chart.js implementation)
+        let donutInstance = null;
+        let barInstance = null;
+
+        function initCharts() {
+            if (donutInstance || barInstance) return; // Prevent double initialization
+
+            // Chart.js base defaults configuration
+            Chart.defaults.font.family = "'Inter', sans-serif";
+            Chart.defaults.color = '#4a5568';
+
+            // Donut Chart - Caparo pillars
+            const ctxDonut = document.getElementById('caparoDonutChart').getContext('2d');
+            donutInstance = new Chart(ctxDonut, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Foreseeability', 'Proximity', 'Fair, Just & Reasonable'],
+                    datasets: [{
+                        data: [33.3, 33.3, 33.4],
+                        backgroundColor: ['#9b2c2c', '#d69e2e', '#4a5568'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const tooltips = [
+                                        " Would a reasonable person foresee danger?",
+                                        " Close and direct legal relationship.",
+                                        " Public policy filter to limit floodgates."
+                                    ];
+                                    return tooltips[context.dataIndex];
+                                }
+                            }
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+
+            // Bar Chart - Remoteness comparison
+            const ctxBar = document.getElementById('remotenessBarChart').getContext('2d');
+            barInstance = new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: ['Re Polemis (Old)', 'Wagon Mound (Modern)'],
+                    datasets: [{
+                        label: 'Responsibility Metric',
+                        data: [100, 45],
+                        backgroundColor: ['#feb2b2', '#9b2c2c'],
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 110,
+                            ticks: { display: false },
+                            grid: { display: false },
+                            title: { display: true, text: 'Degree of Liability' }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { size: 11 } }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataIndex === 0 ?
+                                        " Liable for any direct physical result" :
+                                        " Restricted only to foreseeable types of harm";
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
