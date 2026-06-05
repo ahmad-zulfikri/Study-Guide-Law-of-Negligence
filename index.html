@@ -5,9 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LexSuite: One-Stop Legal Interactive Study Centre</title>
 
+    <!-- Tailwind CSS & Chart.js -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <script>
@@ -46,11 +48,8 @@
             height: 300px;
         }
 
-        /* Screen state controls */
-        .app-view { display: none; opacity: 0; transition: opacity 0.3s ease-in-out; }
-        .app-view.active { display: block; opacity: 1; }
-
-        .view-panel { display: none; opacity: 0; }
+        /* Fixed View System Panel Controls */
+        .view-panel { display: none; opacity: 0; transition: opacity 0.2s ease-in-out; }
         .view-panel.active { display: block; opacity: 1; }
 
         /* Hardware-accelerated CSS Flashcards */
@@ -62,24 +61,24 @@
         .flip-card-front { background-color: #ffffff; color: #1a202c; }
         .flip-card-back { transform: rotateY(180deg); color: #ffffff; }
 
-        .btn-mode { transition: all 0.3s ease; }
-        .btn-mode.active { background-color: #9b2c2c; color: white; border-color: #9b2c2c; box-shadow: 0 4px 12px rgba(155, 44, 44, 0.2); }
-        .mls-theme .btn-mode.active { background-color: #2d3748; border-color: #2d3748; box-shadow: 0 4px 12px rgba(45, 55, 72, 0.2); }
+        .btn-mode { transition: all 0.2s ease; }
     </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col justify-between">
 
-    <div id="view-hub" class="app-view active flex-grow flex flex-col justify-center items-center px-4 py-16">
+    <!-- ================= STATE 1: WELCOME HUB PORTAL (LANDING PAGE) ================= -->
+    <div id="view-hub" class="flex-grow flex flex-col justify-center items-center px-4 py-16">
         <div class="max-w-4xl w-full text-center space-y-8 bg-white p-8 md:p-12 rounded-2xl shadow-xl border border-stone-200">
             <div class="space-y-3">
                 <span class="text-xs font-bold tracking-widest text-law-gold uppercase">Universiti Teknologi MARA • Faculty of Law</span>
-                <h1 class="text-3xl md:text-5xl font-bold font-serif-header text-law-dark tracking-wide">LexSuite Suite Hub</h1>
+                <h1 class="text-3xl md:text-5xl font-bold font-serif-header text-law-dark tracking-wide">LexSuite Hub</h1>
                 <p class="text-base md:text-lg text-law-muted max-w-2xl mx-auto">
                     Welcome to the One-Stop Interactive Legal Learning Centre. Please select a focus area below to unlock customized multimedia study notes, visual infographics, and active recall banks.
                 </p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6">
+                <!-- Subject Card 1: Negligence -->
                 <div class="group border-2 border-stone-200 hover:border-law-crimson rounded-xl p-6 text-left space-y-4 bg-law-cream transition-all hover:shadow-lg cursor-pointer flex flex-col justify-between" onclick="enterSubject('negligence')">
                     <div class="space-y-2">
                         <div class="text-3xl text-law-crimson">⚖️</div>
@@ -94,6 +93,7 @@
                     </span>
                 </div>
 
+                <!-- Subject Card 2: Malaysian Legal System -->
                 <div class="group border-2 border-stone-200 hover:border-law-slate rounded-xl p-6 text-left space-y-4 bg-law-cream transition-all hover:shadow-lg cursor-pointer flex flex-col justify-between" onclick="enterSubject('mls')">
                     <div class="space-y-2">
                         <div class="text-3xl text-law-slate">🏛️</div>
@@ -116,9 +116,12 @@
     </div>
 
 
-    <div id="view-dashboard" class="app-view flex-grow flex flex-col">
+    <!-- ================= STATE 2: INTERACTIVE DASHBOARD SUITE MAIN CONTAINER ================= -->
+    <!-- Fixed: Initialized with 'hidden' class to integrate layout rendering seamlessly with Tailwind -->
+    <div id="view-dashboard" class="hidden flex-grow flex flex-col">
         
-        <header class="bg-law-dark text-white py-6 border-b-4 id-subject-border shadow-md">
+        <!-- Academic Subject Banner Header -->
+        <header id="dashboard-header" class="bg-law-dark text-white py-6 border-b-4 shadow-md">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
                 <div>
                     <button onclick="returnToHub()" class="text-xs font-bold text-law-gold hover:underline flex items-center gap-1 mb-1">
@@ -134,12 +137,13 @@
             </div>
         </header>
 
+        <!-- Dynamic Control Toggle Bar -->
         <section class="bg-white shadow-sm border-b border-gray-200 py-3 sticky top-0 z-40">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex flex-col md:flex-row items-center justify-between gap-4">
                     <span class="text-xs font-bold uppercase tracking-wider text-gray-500">Presentation Mode Views:</span>
                     <div id="mode-buttons-container" class="grid grid-cols-2 sm:flex gap-2 w-full md:w-auto">
-                        <button onclick="switchView('guide')" id="btn-guide" class="btn-mode active px-4 py-2 rounded-lg border border-gray-200 text-xs md:text-sm font-semibold flex items-center justify-center gap-2">
+                        <button onclick="switchView('guide')" id="btn-guide" class="btn-mode px-4 py-2 rounded-lg border border-gray-200 text-xs md:text-sm font-semibold flex items-center justify-center gap-2">
                             <span>&#128214;</span> Interactive Guide
                         </button>
                         <button onclick="switchView('infographic')" id="btn-infographic" class="btn-mode px-4 py-2 rounded-lg border border-gray-200 text-xs md:text-sm font-semibold flex items-center justify-center gap-2">
@@ -156,31 +160,42 @@
             </div>
         </section>
 
+        <!-- Main Dashboard Viewing Area Stage -->
         <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
 
-            <div id="panel-guide" class="view-panel active space-y-8">
+            <!-- ================= DYNAMIC VIEW 1: INTERACTIVE GUIDE ================= -->
+            <div id="panel-guide" class="view-panel space-y-8">
+                <!-- Injected Header Message Paragraph -->
                 <div class="bg-white p-5 rounded-xl border border-stone-200 shadow-sm">
-                    <h2 class="text-base font-bold font-serif-header id-accent-text mb-1">Introduction to the Study Guide</h2>
+                    <h2 id="guide-accent-title" class="text-base font-bold font-serif-header mb-1">Introduction to the Study Guide</h2>
                     <p id="guide-intro-text" class="text-xs md:text-sm text-law-muted leading-relaxed">Intro text goes here...</p>
                 </div>
 
+                <!-- Three Pillar Structural Grid -->
                 <div id="guide-tripartite-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    </div>
+                    <!-- Dynamic Columns Injected via JS state -->
+                </div>
 
+                <!-- Custom Interactive Framework Sandbox Simulator Section -->
                 <div id="guide-simulator-section" class="bg-white p-6 md:p-8 rounded-xl border border-stone-200 shadow-sm">
-                    </div>
+                    <!-- Dynamic Content Injected via JS -->
+                </div>
                 
+                <!-- Additional Secondary Content Blocks -->
                 <div id="guide-secondary-blocks" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    </div>
+                    <!-- Dynamic content cards -->
+                </div>
             </div>
 
+            <!-- ================= DYNAMIC VIEW 2: INFOGRAPHIC DASHBOARD ================= -->
             <div id="panel-infographic" class="view-panel space-y-8">
                 <div class="bg-white p-5 rounded-xl border border-stone-200 shadow-sm">
-                    <h2 class="text-base font-bold font-serif-header id-accent-text mb-1">Visual Data Metrics & Mapping</h2>
+                    <h2 id="info-accent-title" class="text-base font-bold font-serif-header mb-1">Visual Data Metrics & Mapping</h2>
                     <p id="infographic-intro-text" class="text-xs md:text-sm text-law-muted leading-relaxed">Intro content goes here...</p>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Chart Widget Left Box -->
                     <div class="bg-white p-6 rounded-xl border border-stone-200 shadow-sm flex flex-col items-center">
                         <h3 id="chart-left-title" class="text-sm font-bold font-serif-header text-center mb-1 text-stone-800">Chart 1 Title</h3>
                         <p id="chart-left-subtitle" class="text-[11px] text-law-muted text-center mb-4">Chart description details</p>
@@ -190,6 +205,7 @@
                         <div id="chart-left-analysis" class="mt-4 text-xs text-law-muted w-full px-2 border-t pt-3"></div>
                     </div>
 
+                    <!-- Chart Widget Right Box -->
                     <div class="bg-white p-6 rounded-xl border border-stone-200 shadow-sm flex flex-col items-center">
                         <h3 id="chart-right-title" class="text-sm font-bold font-serif-header text-center mb-1 text-stone-800">Chart 2 Title</h3>
                         <p id="chart-right-subtitle" class="text-[11px] text-law-muted text-center mb-4">Chart description details</p>
@@ -200,45 +216,56 @@
                     </div>
                 </div>
 
+                <!-- Bottom Quick Statistics Core Widget Panel -->
                 <div class="bg-law-dark text-white p-6 rounded-xl shadow-md">
                     <h3 id="stats-widget-title" class="text-sm font-bold font-serif-header text-law-gold mb-4 text-center">Core Foundations Summary</h3>
                     <div id="stats-widget-grid" class="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
-                        </div>
+                        <!-- Stat items injected via JS -->
+                    </div>
                 </div>
             </div>
 
+            <!-- ================= DYNAMIC VIEW 3: ACTIVE RECALL FLASHCARDS ================= -->
             <div id="panel-flashcards" class="view-panel space-y-8">
                 <div class="bg-white p-5 rounded-xl border border-stone-200 shadow-sm">
-                    <h2 class="text-base font-bold font-serif-header id-accent-text mb-1">Active Recall Spatial Testing Bank</h2>
+                    <h2 id="flash-accent-title" class="text-base font-bold font-serif-header mb-1">Active Recall Spatial Testing Bank</h2>
                     <p id="flashcard-intro-text" class="text-xs md:text-sm text-law-muted leading-relaxed">Flashcard text instructions...</p>
                 </div>
 
+                <!-- Flashcard Flex Grid Node Arena -->
                 <div id="flashcards-container-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    </div>
+                    <!-- Cards structural grid injected via Javascript state -->
+                </div>
             </div>
 
+            <!-- ================= DYNAMIC VIEW 4: CASE EXPLORER DATABASE ================= -->
             <div id="panel-cases" class="view-panel space-y-8">
                 <div class="bg-white p-5 rounded-xl border border-stone-200 shadow-sm">
-                    <h2 class="text-base font-bold font-serif-header id-accent-text mb-1">Consolidated Course Authority Database</h2>
+                    <h2 id="cases-accent-title" class="text-base font-bold font-serif-header mb-1">Consolidated Course Authority Database</h2>
                     <p id="cases-intro-text" class="text-xs md:text-sm text-law-muted leading-relaxed">Database summary text...</p>
                 </div>
 
+                <!-- Integrated Search & Dynamic Tag Filter Controller Bar -->
                 <div class="bg-white p-4 rounded-xl border border-stone-200 shadow-sm space-y-3">
                     <div class="flex flex-col md:flex-row gap-3 items-center justify-between">
-                        <input type="text" id="caseSearchInput" onkeyup="executeCaseFilter()" placeholder="Search active library cases by title, ratio, or key citation..." class="w-full md:max-w-md px-4 py-2 border border-stone-300 rounded-lg text-xs focus:outline-none focus:ring-2 id-search-focus">
+                        <input type="text" id="caseSearchInput" onkeyup="executeCaseFilter()" placeholder="Search active library cases by title, ratio, or key citation..." class="w-full md:max-w-md px-4 py-2 border border-stone-300 rounded-lg text-xs focus:outline-none focus:ring-2">
                         <div id="case-chips-wrapper" class="flex flex-wrap gap-1.5 w-full md:w-auto">
-                            </div>
+                            <!-- Injected chips dynamically -->
+                        </div>
                     </div>
                 </div>
 
+                <!-- Core Grid Platform containing Case Authority Blocks -->
                 <div id="cases-cards-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    </div>
+                    <!-- Case cards dynamically processed here -->
+                </div>
             </div>
 
         </main>
     </div>
 
 
+    <!-- ================= STATIC FOOTER FRAMEWORK ACADEMIC BRANDING ================= -->
     <section class="mt-12 border-t border-stone-200 bg-stone-50 py-10 px-4">
         <div class="max-w-5xl mx-auto">
             <h3 class="text-center text-sm font-serif font-bold text-stone-500 uppercase tracking-widest mb-4">Developed By</h3>
@@ -268,3 +295,571 @@
             <strong>Disclaimer:</strong> This database is an educational aid under course codes LAW434/LAW435 frameworks. It functions strictly for spatial testing and exam revision, not as formal commercial representation.
         </p>
     </footer>
+
+
+    <!-- ================= UNIVERSAL DATABASE STATE OBJECT MANAGER ================= -->
+    <script>
+        let currentSubject = '';
+        let currentPanel = 'guide';
+        let currentFilterTag = 'all';
+        let leftChartInstance = null;
+        let rightChartInstance = null;
+
+        // Subject Database Repository
+        const legalDataRepo = {
+            negligence: {
+                title: "Law of Negligence Suite",
+                badge: "LAW435 Framework Rules",
+                colorCode: "#9b2c2c",
+                accentClass: "text-law-crimson",
+                guideIntro: "Welcome to the Interactive Study Guide for Negligence. This panel breaks down textbook tort principles into interactive learning models. Analyze the core requirements of duty, breach, and causation metrics step-by-step.",
+                tripartite: [
+                    { num: "Element 1", title: "Duty of Care", desc: "A legal obligation demanding the defendant to take reasonable care to avert actions that could foreseeably injure the plaintiff.", points: ["Neighbor Principle", "Anns 2-Stage Test", "Caparo 3-Fold Filter"] },
+                    { num: "Element 2", title: "Breach of Duty", desc: "The behavioral omission to meet or maintain the standard of competence expected of a reasonable man under identical parameters.", points: ["Reasonable Man Yardstick", "Objective Baseline Scale", "The Bolam Professional Metric"] },
+                    { num: "Element 3", title: "Causation & Scope", desc: "Proving structural factual causation linking the breach directly to damage, without falling beyond remoteness parameters.", points: ["'But-For' Factual Test", "Novus Actus Interveniens", "Wagon Mound Foreseeability"] }
+                ],
+                simTitle: "Standard of Care Scale Simulator",
+                simSubtitle: "Click below to observe how objective competence scales slide based on legal categories:",
+                simButtons: [
+                    { id: "ordinary", label: "Ordinary Layperson" },
+                    { id: "learner", label: "Learner Driver" },
+                    { id: "child", label: "School Child" },
+                    { id: "professional", label: "Surgeon / Specialist" }
+                ],
+                simDatabase: {
+                    ordinary: { icon: "🧑", title: "Ordinary Layperson", auth: "The 'Clapham Omnibus' Standard", desc: "Judged strictly against the objective criteria of an ordinary, prudent person. Natural individual clumsiness is completely ignored by law.", score: "50% (Average Baseline)", width: "50%", color: "#9b2c2c" },
+                    learner: { icon: "🚗", title: "Learner Driver", auth: "Nettleship v Watson [1971]", desc: "Held completely to the standard of an experienced, competent driver on public avenues. Inexperience provides no shield or legal markdown.", score: "75% (Competent Driver)", width: "75%", color: "#d69e2e" },
+                    child: { icon: "👧", title: "School Child", auth: "Mullin v Richards [1998]", desc: "Judged dynamically based on what an ordinary reasonable child of the exact identical age cohort would foresee. Lower competence scale.", score: "25% (Age-Adjusted Scale)", width: "25%", color: "#4a5568" },
+                    professional: { icon: "🩺", title: "Surgeon / Specialist", auth: "Bolam v Friern Hospital [1957]", desc: "Judged by the standard of an ordinary skilled professional in that expert branch. Cleared if actions match an accepted responsible body of peers.", score: "95% (Expert Medical Tier)", width: "95%", color: "#1a202c" }
+                },
+                secondaryCards: [
+                    { title: "Evolution of Duty of Care", desc: "Historically, establishing a duty of care was complex. In Anns v Merton LBC [1977], the court introduced a broad 2-stage test. Because stage one only required simple foreseeability, it generated a massive, unmanageable scope of liability. To correct this, Caparo Industries plc v Dickman established the modern 3-fold framework.", alert: "The Overruling Reason: The Anns framework put excessive weight on arbitrary public policy filters at stage two to limit liability after it arose, rather than checking proximate relations initially." },
+                    { title: "Maxim: Res Ipsa Loquitur", desc: "In specific situations, the plaintiff cannot directly prove what distinct action the defendant took that was negligent, but the facts of the accident speak for themselves. Under Scott v London & St. Katherine Docks Co., three mandatory criteria must be satisfied:", list: ["The apparatus causing the injury was under the exclusive control of the defendant.", "The accident would not ordinarily occur unless negligence was active.", "There is a complete absence of alternative physical explanation."] }
+                ],
+                infographicIntro: "The Infographic Dashboard translates the shifting boundaries of negligence liability into visual charts. Review the proportional elements of Caparo alongside the historic evolution of remoteness boundaries.",
+                chartLeft: { title: "Caparo Test Proportional Pillars", subtitle: "Visual weight distribution of the tripartite Duty filter", analysis: "💡 Interactivity: Hover over slices to observe how each pillar serves as a legal checkpoint. The court applies all three conjunctively to prevent artificial floodgates of pure economic loss." },
+                chartRight: { title: "Liability Boundaries: Remoteness Scale", subtitle: "Comparing the restriction of defendant liabilities across historic tests", analysis: "⚖️ Legal Analysis: The historic Re Polemis test penalized defendants for any direct consequence regardless of visibility. The modern Wagon Mound No 1 ruling capped this, anchoring liability exclusively to foreseeable categories of damage." },
+                stats: [
+                    { top: "1932", text: "Neighbor Principle", bottom: "Established by Lord Atkin in Donoghue v Stevenson, setting proximity baselines." },
+                    { top: "100%", text: "But-For Rule", bottom: "If damage would occur regardless of the breach, factual causation fails completely." },
+                    { top: "Type", text: "Damage Filter", bottom: "Under Wagon Mound rules, the precise type of damage must be reasonably foreseeable." }
+                ],
+                flashcardIntro: "Read the premise on the front of the active recall card, synthesize the core case ratio or definition in your head, and click the card to flip and verify.",
+                flashcards: [
+                    { q: "Factual Causation Test", a: "The 'But-For' Test. Proves that 'but for' the defendant's negligent breach of duty, the plaintiff's damage or injury would not have occurred." },
+                    { q: "The Bolam Test", a: "Dictates that a professional is not negligent if their action conforms to an accepted practice supported by a responsible, competent body of expert opinion." },
+                    { q: "Wagon Mound No. 1 Ratio", a: "Establishes the modern test of Remoteness of Damage. The defendant is only liable for damage if the type, kind, or class of injury was reasonably foreseeable." },
+                    { q: "Nettleship v Watson Rule", a: "A learner driver is held to the objective standard of an ordinary, experienced, and competent driver on public roads. No discount is given for inexperience." },
+                    { q: "Novus Actus Interveniens", a: "A new, intervening act that is so unreasonable or unforeseeable that it breaks the physical chain of causation, clearing the original defendant of liability." },
+                    { q: "Anns Test Overruling Reason", a: "It allowed a duty of care to arise too easily at Stage 1, forcing courts to over-rely on broad public policy considerations at Stage 2 to artificially limit liability." }
+                ],
+                casesIntro: "Interactive searchable database of the cornerstone course authorities on the Law of Negligence. Filter via structural categories.",
+                chips: [
+                    { id: "all", label: "All Cases" },
+                    { id: "duty", label: "Duty of Care" },
+                    { id: "breach", label: "Breach of Duty" },
+                    { id: "causation", label: "Causation" },
+                    { id: "remoteness", label: "Remoteness" }
+                ],
+                cases: [
+                    { tag: "duty", tagLabel: "Duty of Care", color: "bg-red-100 text-red-800", cite: "[1932] AC 562", name: "Donoghue v Stevenson", sub: "The Snail in the Ginger Beer", facts: "A friend purchased an opaque bottle of ginger beer for the plaintiff. She drank it and discovered a decomposed snail, falling severely ill.", held: "A manufacturer owes a duty of care to consumers. Created the foundational 'Neighbor Principle' of proximity." },
+                    { tag: "duty", tagLabel: "Duty of Care", color: "bg-red-100 text-red-800", cite: "[1977] 2 All ER 492", name: "Anns v Merton LBC", sub: "Structural Defects & Cracks Case", facts: "Structural cracks appeared due to shallow foundations. Plaintiff sued the local council for failing to inspect structural plans properly.", held: "Formulated the loose Two-Stage Test. Later overruled due to excessive, unpredictable scopes of liability." },
+                    { tag: "duty", tagLabel: "Duty of Care", color: "bg-red-100 text-red-800", cite: "[1990] 2 AC 605", name: "Caparo Industries v Dickman", sub: "Corporate Audit Discrepancy", facts: "An investment firm purchased corporate shares relying on faulty audited accounts, sustaining massive financial losses.", held: "Overruled Anns completely. Established the conjunctive Three-Fold Test: Foreseeability, Proximity, and Fair, Just & Reasonable." },
+                    { tag: "breach", tagLabel: "Breach of Duty", color: "bg-yellow-100 text-yellow-800", cite: "[1971] 2 QB 691", name: "Nettleship v Watson", sub: "Learner Driver Crash", facts: "A learner driver hit a lamp post during an early lesson, fractures the shoulder of her amateur instructor.", held: "Objective standard applies. A learner must exhibit the same skill scale as a competent, qualified driver on public roads." },
+                    { tag: "breach", tagLabel: "Breach of Duty", color: "bg-yellow-100 text-yellow-800", cite: "[1957] 1 WLR 582", name: "Bolam v Friern Hospital", sub: "Electroconvulsive Therapy Standard", facts: "Patient underwent shock therapy without muscle relaxant drugs, suffering a fractured pelvis during the process.", held: "Formulated the Bolam standard: Professionals are measured by the accepted peer body standard of comparable qualified experts." },
+                    { tag: "causation", tagLabel: "Causation", color: "bg-green-100 text-green-800", cite: "[1968] 1 QB 428", name: "Barnett v Chelsea Hospital", sub: "Arsenic Poisoning Factual Chain", facts: "Nightwatchman visited the clinic complaining of severe vomiting. The doctor refused to attend, telling him to go home. He died from arsenic.", held: "The doctor breached duty, but the patient would have died regardless due to advanced toxicity. The 'But-For' test failed." },
+                    { tag: "remoteness", tagLabel: "Remoteness", color: "bg-purple-100 text-purple-800", cite: "[1961] AC 388", name: "The Wagon Mound (No. 1)", sub: "Oil Spill and Dockyard Fire", facts: "Negligent oil spill from a vessel drifted toward a dockyard, where welding sparks ignited floating debris, causing a massive inferno.", held: "Re Polemis directness rule discarded. Standardized the 'Reasonable Foresight' rule for remoteness metrics." }
+                ]
+            },
+            mls: {
+                title: "Malaysian Legal System Suite",
+                badge: "LAW434 Core Framework",
+                colorCode: "#2d3748",
+                accentClass: "text-law-slate",
+                guideIntro: "Welcome to the Interactive Study Guide for the Malaysian Legal System. This panel charts the structural framework of Malaysian jurisprudence, detailing written statutes, unwritten customary laws, and judicial power corridors.",
+                tripartite: [
+                    { num: "Source 1", title: "Written Law", desc: "The supreme authoritative legislation passed by formal legislative organs, taking ultimate hierarchy over all unwritten sources.", points: ["Federal Constitution", "Acts of Parliament", "State Enactments"] },
+                    { num: "Source 2", title: "Unwritten Law", desc: "Legal principles not codified by legislative acts, yet active via continuous judicial adaptation or historical communal usage.", points: ["English Common Law", "Judicial Precedents", "Customary Native Laws"] },
+                    { num: "Source 3", title: "Syariah Law", desc: "A specialized personal status legal framework enacted pursuant to List II of the Ninth Schedule, applicable strictly to Muslims.", points: ["State List Competence", "Article 121(1A) Division", "Enactments / Ordinances"] }
+                ],
+                simTitle: "Interactive Civil Court Hierarchy Map",
+                simSubtitle: "Click on any node to reveal jurisdictional limits, financial boundaries, and unique statutory power scales:",
+                simButtons: [
+                    { id: "fc", label: "Federal Court (Apex Tier)" },
+                    { id: "ca", label: "Court of Appeal" },
+                    { id: "hc", label: "High Court (Malaya / Borneo)" },
+                    { id: "sc", label: "Sessions Court" },
+                    { id: "mc", label: "Magistrate Court" }
+                ],
+                simDatabase: {
+                    fc: { icon: "🏛️", title: "Federal Court", auth: "The Apex Judicial Authority", desc: "Highest appellate tier. Resolves final appeals from the Court of Appeal. Possesses exclusive original jurisdiction under the Federal Constitution to assess statutory validity or handle disputes between States and the Federation.", score: "Apex Level Jurisdiction", width: "100%", color: "#1a202c" },
+                    ca: { icon: "⚖️", title: "Court of Appeal", auth: "Appellate Specialist Tier", desc: "Vested strictly with appellate jurisdiction. Empowereed to hear and determine civil and criminal appeals flowing from any judgement of the High Court.", score: "Superior Appellate Tier", width: "80%", color: "#2d3748" },
+                    hc: { icon: "🏛️", title: "High Court", auth: "Unlimited Pecuniary Court of Record", desc: "Possesses original and appellate powers. Handles civil claims exceeding RM1,000,000 without upper limits. In criminal terms, it is the sole forum capable of trying offenses carrying capital punishment.", score: "Superior Original Tier", width: "65%", color: "#4a5568" },
+                    sc: { icon: "⚖️", title: "Sessions Court", auth: "Highest Subordinate Tier", desc: "Civil jurisdiction spans disputes valued from RM100,001 up to RM1,000,000 (motor vehicle injury lawsuits carry no limit). Criminal jurisdiction covers all offenses except those carrying the death penalty.", score: "Subordinate Tier (Sessions)", width: "45%", color: "#718096" },
+                    mc: { icon: "⚖️", title: "Magistrate Court", auth: "First-Tier Subordinate Court", desc: "Civil jurisdiction handles lower disputes up to RM100,000. Criminal powers generally evaluate offenses penalised with a maximum of 10 years imprisonment, or fine structures.", score: "Subordinate Tier (Magistrate)", width: "25%", color: "#a0aec0" }
+                },
+                secondaryCards: [
+                    { title: "English Law Reception & Civil Law Act 1956", desc: "The reception of English Common Law and Equity in Malaysia is strictly governed by Section 3 of the Civil Law Act 1956. It imposes rigid 'Cut-off Dates' beyond which subsequent English developments cannot automatically apply:", list: ["Peninsular Malaysia: 7 April 1956", "Sabah: 1 December 1951", "Sarawak: 12 December 1949"], alert: "Critical Limitation: Under Section 6, English Land Law rules are entirely excluded because Malaysia utilizes the Torrens System via the National Land Code." },
+                    { title: "Statutory Interpretation Guidelines", desc: "When analyzing statutory provisions enacted by Parliament, judges use specific canon rules to decode the authentic legislative draft intention:", list: ["Literal Rule: Words receive ordinary grammatical dictionary values.", "Golden Rule: Modifies the literal rule strictly to bypass manifest absurdity.", "Mischief Rule: Analyzes the legislative defect the parent Act aimed to fix.", "Purposive Approach: Modern rule seeking the core legislative objective."] }
+                ],
+                infographicIntro: "The Infographic Dashboard visualizes the architecture of source priority and structural dynamics governing Malaysian jurisprudence. Review source proportions alongside precedent flows.",
+                chartLeft: { title: "Sources of Malaysian Jurisprudence", subtitle: "Conceptual proportions of source references active in local litigation", analysis: "💡 Source Layout: Written Law occupies the vast majority of administrative action. Unwritten elements (precedents) steer daily application, while Syariah forms a dedicated personal law framework." },
+                chartRight: { title: "Precedent Hierarchy Flow Metric", subtitle: "Tracking the binding force index across judicial tiers", analysis: "⚖️ Stare Decisis: Higher superior courts create binding ratios that compress downwards upon subordinate tiers. Courts of coordinate power are traditionally bound by past decisions unless exceptional criteria manifest." },
+                stats: [
+                    { top: "Art 4", text: "Supreme Law", bottom: "Article 4(1) declares the Federal Constitution supreme; conflicting laws are void." },
+                    { top: "Sec 3", text: "Reception Cutoff", bottom: "Section 3 of Civil Law Act 1956 establishes rigid historical dates for Common Law reception." },
+                    { top: "9th", text: "Schedule Lists", bottom: "Divides legislative powers into Federal List, State List, and Concurrent List." }
+                ],
+                flashcardIntro: "Test your immediate active recall concerning core constitutional provisions, statutory reception rules, and the structure of Stare Decisis.",
+                flashcards: [
+                    { q: "Article 4(1) Doctrine", a: "Declares the Federal Constitution as the supreme law of the Federation. Any law passed which is inconsistent shall be void to the extent of the inconsistency." },
+                    { q: "Section 3 Civil Law Act 1956", a: "The statutory vehicle permitting reception of English Common Law and Equity, subject to local suitability and the historical cut-off dates." },
+                    { q: "Ratio Decidendi Definition", a: "The underlying legal principle or reason for a judicial conclusion. This represents the explicit portion of a judgment that binds lower courts." },
+                    { q: "Obiter Dictum Character", a: "Statements made 'by the way' by a judge. It does not possess binding authority under Stare Decisis, but acts as persuasive guidance." },
+                    { q: "Per Incuriam Exception", a: "A decision rendered through structural ignorance or lack of care regarding a binding statutory provision or case precedent, stripping it of binding authority." },
+                    { q: "Section 6 Civil Law Act 1956", a: "Explicitly bars the reception of English Land Law in Malaysia, preserving the sanctity of the local Torrens land regime." }
+                ],
+                casesIntro: "Searchable database containing landmark judicial authorities and constitutional determinations shaping the Malaysian Legal System.",
+                chips: [
+                    { id: "all", label: "All Cases" },
+                    { id: "supremacy", label: "Constitutional" },
+                    { id: "precedent", label: "Stare Decisis" },
+                    { id: "reception", label: "Law Reception" }
+                ],
+                cases: [
+                    { tag: "supremacy", tagLabel: "Constitutional", color: "bg-blue-100 text-blue-800", cite: "[1988] 1 MLJ 35", name: "Che Omar bin Che Soh v PP", sub: "The Secular State Determination", facts: "Counsel argued that the mandatory death penalty for drug trafficking was unconstitutional as it violated Islamic legal frameworks.", held: "The Supreme Court ruled that the term 'religion' in Article 3 is restricted to rituals and personal status law, confirming the secular legislative design." },
+                    { tag: "precedent", tagLabel: "Stare Decisis", color: "bg-red-100 text-red-800", cite: "[1944] KB 718", name: "Young v Bristol Aeroplane Co", sub: "Coordinate Appellate Exceptions", facts: "The English Court of Appeal outlined the explicit strict boundaries where an intermediate appellate forum can bypass its own past decisions.", held: "Adopted in Malaysia. Coordinate courts bind themselves EXCEPT if a past ruling was per incuriam, or if two past decisions conflict directly." },
+                    { tag: "precedent", tagLabel: "Stare Decisis", color: "bg-red-100 text-red-800", cite: "[2022] 1 MLJ 42", name: "Zaidi bin Kanapiah v PP", sub: "Apex Overruling Competence", facts: "The apex forum evaluated whether it could depart from its own prior determination concerning preventative detention statutes.", held: "Confirmed that while the Federal Court will maintain stability, it possesses absolute power to depart from its prior ratios to correct clear injustice." },
+                    { tag: "reception", tagLabel: "Law Reception", color: "bg-purple-100 text-purple-800", cite: "[1962] MLJ 229", name: "Lee Kee Choong v MD Kwanten", sub: "Commercial Suitability Filter", facts: "A partnership dispute required the assessment of whether subsequent English partnership rules applied past the cutoff baseline.", held: "The Privy Council confirmed that English law is received subject to local qualifications, and subsequent developments do not automatically bind." }
+                ]
+            }
+        };
+
+        // UI View Launcher Orchestrator
+        function enterSubject(subjectKey) {
+            currentSubject = subjectKey;
+            const data = legalDataRepo[subjectKey];
+            
+            // Apply thematic styling parameters
+            document.getElementById('dashboard-main-title').innerText = data.title;
+            document.getElementById('subject-badge').innerText = data.badge;
+            
+            // Apply custom color theme directly to the sticky bar border
+            document.getElementById('dashboard-header').style.borderBottomColor = data.colorCode;
+
+            // Apply dynamic theme color mapping classes to section titles
+            document.getElementById('guide-accent-title').style.color = data.colorCode;
+            document.getElementById('info-accent-title').style.color = data.colorCode;
+            document.getElementById('flash-accent-title').style.color = data.colorCode;
+            document.getElementById('cases-accent-title').style.color = data.colorCode;
+            document.getElementById('stats-widget-title').style.color = '#d69e2e'; // Golden Accent Fixed
+
+            // Build Panel 1: Interactive Guide Elements
+            document.getElementById('guide-intro-text').innerText = data.guideIntro;
+            
+            let tripartiteHTML = '';
+            data.tripartite.forEach(col => {
+                tripartiteHTML += `
+                    <div class="bg-white p-5 rounded-lg border-t-4 shadow-sm flex flex-col justify-between" style="border-top-color: ${data.colorCode}">
+                        <div>
+                            <span class="text-xs uppercase tracking-wider font-bold" style="color: ${data.colorCode}">${col.num}</span>
+                            <h3 class="text-lg font-bold font-serif-header mt-1 mb-2">${col.title}</h3>
+                            <p class="text-xs text-law-muted mb-3 leading-relaxed">${col.desc}</p>
+                        </div>
+                        <ul class="text-[11px] space-y-1 text-gray-600 bg-gray-50 p-2 rounded font-mono">
+                            ${col.points.map(p => `<li>• ${p}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            });
+            document.getElementById('guide-tripartite-grid').innerHTML = tripartiteHTML;
+
+            // Build Simulator Section
+            buildSimulatorUI(data, subjectKey);
+
+            // Build Secondary Text Framework Cards
+            let secondaryHTML = '';
+            data.secondaryCards.forEach(card => {
+                secondaryHTML += `
+                    <div class="bg-white p-5 rounded-lg border border-stone-200 shadow-sm space-y-3">
+                        <h3 class="text-sm font-bold font-serif-header text-stone-800 border-b pb-1.5" style="border-bottom-color: #e2e8f0">${card.title}</h3>
+                        <p class="text-xs leading-relaxed text-law-muted">${card.desc}</p>
+                        ${card.list ? `<ul class="list-disc list-inside text-[11px] text-stone-600 space-y-1 bg-stone-50 p-2 rounded">${card.list.map(li => `<li>${li}</li>`).join('')}</ul>` : ''}
+                        ${card.alert ? `<div class="bg-red-50 p-3 rounded text-[11px] text-red-900 border-l-2 border-red-600 leading-relaxed"><strong>Context Analysis:</strong> ${card.alert}</div>` : ''}
+                    </div>
+                `;
+            });
+            document.getElementById('guide-secondary-blocks').innerHTML = secondaryHTML;
+
+            // Build Panel 2: Infographic Structure Text Nodes
+            document.getElementById('infographic-intro-text').innerText = data.infographicIntro;
+            document.getElementById('chart-left-title').innerText = data.chartLeft.title;
+            document.getElementById('chart-left-subtitle').innerText = data.chartLeft.subtitle;
+            document.getElementById('chart-left-analysis').innerHTML = data.chartLeft.analysis;
+            document.getElementById('chart-right-title').innerText = data.chartRight.title;
+            document.getElementById('chart-right-subtitle').innerText = data.chartRight.subtitle;
+            document.getElementById('chart-right-analysis').innerHTML = data.chartRight.analysis;
+
+            let statsHTML = '';
+            data.stats.forEach(st => {
+                statsHTML += `
+                    <div class="border-r border-gray-800 last:border-0 px-2">
+                        <span class="text-2xl md:text-3xl block mb-1 font-serif-header text-law-gold">${st.top}</span>
+                        <h4 class="font-bold text-xs mb-1 text-stone-200">${st.text}</h4>
+                        <p class="text-[11px] text-gray-400 max-w-xs mx-auto leading-relaxed">${st.bottom}</p>
+                    </div>
+                `;
+            });
+            document.getElementById('stats-widget-grid').innerHTML = statsHTML;
+
+            // Build Panel 3: Active Recall Cards
+            document.getElementById('flashcard-intro-text').innerText = data.flashcardIntro;
+            let flashcardsHTML = '';
+            data.flashcards.forEach(fc => {
+                flashcardsHTML += `
+                    <div class="flip-card" onclick="toggleCard(this)">
+                        <div class="flip-card-inner">
+                            <div class="flip-card-front" style="border-top: 4px solid ${data.colorCode}">
+                                <span class="text-2xl mb-2">${subjectKey === 'negligence' ? '🛡️' : '🏛️'}</span>
+                                <h3 class="font-bold font-serif-header text-xs md:text-sm text-center text-stone-800">${fc.q}</h3>
+                                <p class="text-[10px] text-gray-400 mt-4 uppercase font-mono tracking-wider">(Click to Flip Card)</p>
+                            </div>
+                            <div class="flip-card-back" style="background-color: ${data.colorCode}">
+                                <h4 class="font-bold font-serif-header text-[10px] text-law-light-gold mb-2 uppercase tracking-widest">Core Ratio Verdict</h4>
+                                <p class="text-[11px] leading-relaxed text-center px-1 font-sans">${fc.a}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById('flashcards-container-grid').innerHTML = flashcardsHTML;
+
+            // Build Panel 4: Case Explorer
+            document.getElementById('cases-intro-text').innerText = data.casesIntro;
+            
+            let chipsHTML = '';
+            data.chips.forEach(ch => {
+                chipsHTML += `
+                    <button onclick="filterByTag('${ch.id}')" class="chip-filter px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-semibold" id="chip-${ch.id}">${ch.label}</button>
+                `;
+            });
+            document.getElementById('case-chips-wrapper').innerHTML = chipsHTML;
+            document.getElementById('caseSearchInput').value = '';
+
+            renderCaseGridUI(data.cases);
+
+            // Fixed Layout Switch Strategy: Use Tailwind's structural hiding utilities
+            document.getElementById('view-hub').classList.add('hidden');
+            document.getElementById('view-dashboard').classList.remove('hidden');
+            
+            // Set Default Active View Panel
+            switchView('guide');
+        }
+
+        function returnToHub() {
+            document.getElementById('view-dashboard').classList.add('hidden');
+            document.getElementById('view-hub').classList.remove('hidden');
+            currentSubject = '';
+            
+            if (leftChartInstance) { leftChartInstance.destroy(); leftChartInstance = null; }
+            if (rightChartInstance) { rightChartInstance.destroy(); rightChartInstance = null; }
+        }
+
+        // Simulator Module Assembler Engine
+        function buildSimulatorUI(data, subjectKey) {
+            const container = document.getElementById('guide-simulator-section');
+            const initialKey = Object.keys(data.simDatabase)[0];
+            const initItem = data.simDatabase[initialKey];
+
+            container.innerHTML = `
+                <div class="max-w-2xl mx-auto text-center mb-6">
+                    <span class="text-xs uppercase tracking-wider text-law-gold font-mono font-bold">Interactive Sandbox Laboratory</span>
+                    <h3 class="text-lg font-bold font-serif-header text-stone-800 mt-0.5">${data.simTitle}</h3>
+                    <p class="text-xs text-law-muted mt-1 leading-relaxed">${data.simSubtitle}</p>
+                </div>
+
+                <div class="flex flex-wrap justify-center gap-2 mb-6">
+                    ${data.simButtons.map(btn => `
+                        <button onclick="executeSimulationStep('${btn.id}')" id="per-${btn.id}" class="btn-persona px-3 py-1.5 rounded-full border border-stone-300 text-xs font-semibold bg-stone-100 transition-colors">${btn.label}</button>
+                    `).join('')}
+                </div>
+
+                <div class="bg-law-cream p-5 rounded-lg border border-law-gold max-w-xl mx-auto shadow-inner">
+                    <div class="flex items-center gap-4 mb-3">
+                        <div id="sim-icon" class="text-3xl bg-white p-2 rounded-full shadow-sm">${initItem.icon}</div>
+                        <div>
+                            <h4 id="sim-title" class="font-bold font-serif-header text-sm text-stone-800">${initItem.title}</h4>
+                            <span id="sim-authority" class="text-[11px] italic text-stone-500 block">${initItem.auth}</span>
+                        </div>
+                    </div>
+                    <p id="sim-description" class="text-xs leading-relaxed text-law-muted mb-4">${initItem.desc}</p>
+                    <div>
+                        <div class="flex justify-between text-[10px] font-mono font-bold uppercase mb-1">
+                            <span class="text-stone-500">Jurisdictional Cap / Competence Scale</span>
+                            <span id="sim-score" class="text-stone-800">${initItem.score}</span>
+                        </div>
+                        <div class="w-full bg-stone-200 h-2.5 rounded-full overflow-hidden">
+                            <div id="sim-bar" class="h-full transition-all duration-500" style="width: ${initItem.width}; background-color: ${initItem.color};"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            setTimeout(() => {
+                const activeBtn = document.getElementById('per-' + initialKey);
+                if(activeBtn) activeBtn.className = `btn-persona px-3 py-1.5 rounded-full border text-xs font-semibold bg-stone-800 text-white border-stone-800`;
+            }, 50);
+        }
+
+        function executeSimulationStep(key) {
+            const data = legalDataRepo[currentSubject].simDatabase[key];
+            
+            document.querySelectorAll('.btn-persona').forEach(btn => {
+                btn.className = "btn-persona px-3 py-1.5 rounded-full border border-stone-300 text-xs font-semibold bg-stone-100 transition-colors";
+            });
+            document.getElementById('per-' + key).className = `btn-persona px-3 py-1.5 rounded-full border text-xs font-semibold bg-stone-800 text-white border-stone-800`;
+
+            document.getElementById('sim-icon').innerText = data.icon;
+            document.getElementById('sim-title').innerText = data.title;
+            document.getElementById('sim-authority').innerText = data.auth;
+            document.getElementById('sim-description').innerText = data.desc;
+            document.getElementById('sim-score').innerText = data.score;
+            
+            const bar = document.getElementById('sim-bar');
+            bar.style.width = data.width;
+            bar.style.backgroundColor = data.color;
+        }
+
+        // Panel Switch Navigation Coordinator
+        function switchView(panelId) {
+            currentPanel = panelId;
+            document.querySelectorAll('.view-panel').forEach(el => el.classList.remove('active'));
+
+            document.getElementById('panel-' + panelId).classList.add('active');
+
+            // Apply subject specific active tab colors directly to prevent layout override crashes
+            const activeBtn = document.getElementById('btn-' + panelId);
+            const activeColor = legalDataRepo[currentSubject].colorCode;
+            
+            // Focus layout styling updates
+            document.querySelectorAll('.btn-mode').forEach(btn => {
+                if(btn.id === 'btn-' + panelId) {
+                    btn.style.backgroundColor = activeColor;
+                    btn.style.color = '#ffffff';
+                    btn.style.borderColor = activeColor;
+                    btn.classList.add('shadow-md');
+                } else {
+                    btn.style.backgroundColor = '#ffffff';
+                    btn.style.color = '#1a202c';
+                    btn.style.borderColor = '#e2e8f0';
+                    btn.classList.remove('shadow-md');
+                }
+            });
+
+            // Handle dynamic focus styling on specific search input bars
+            const searchInput = document.getElementById('caseSearchInput');
+            if (currentSubject === 'negligence') {
+                searchInput.onfocus = () => searchInput.style.borderColor = '#9b2c2c';
+            } else {
+                searchInput.onfocus = () => searchInput.style.borderColor = '#2d3748';
+            }
+            searchInput.onblur = () => searchInput.style.borderColor = '#e2e8f0';
+
+            if (panelId === 'infographic') {
+                processChartCoreRendering();
+            }
+        }
+
+        // Case Library Internal Logic Platform
+        function renderCaseGridUI(casesArray) {
+            let casesHTML = '';
+            casesArray.forEach(c => {
+                casesHTML += `
+                    <div class="case-card bg-white p-5 rounded-lg border border-stone-200 shadow-sm space-y-3" data-category="${c.tag}">
+                        <div class="flex justify-between items-start">
+                            <span class="px-2 py-0.5 ${c.color} rounded text-[9px] font-mono font-bold uppercase tracking-wider">${c.tagLabel}</span>
+                            <span class="text-xs text-stone-400 font-mono">${c.cite}</span>
+                        </div>
+                        <div>
+                            <h3 class="font-bold font-serif-header text-stone-900 text-base mb-0.5">${c.name}</h3>
+                            <p class="text-xs font-medium italic text-stone-500">${c.sub}</p>
+                        </div>
+                        <div class="space-y-1.5 text-xs text-law-muted border-t border-stone-50 pt-2 leading-relaxed">
+                            <p><strong>Facts:</strong> ${c.facts}</p>
+                            <p class="bg-stone-50 p-2 rounded border-l-2 border-stone-400 mt-1"><strong>Held Ratio:</strong> ${c.held}</p>
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById('cases-cards-grid').innerHTML = casesHTML;
+        }
+
+        function filterByTag(tagId) {
+            currentFilterTag = tagId;
+            const activeColor = legalDataRepo[currentSubject].colorCode;
+            
+            document.querySelectorAll('.chip-filter').forEach(btn => {
+                if (btn.id === 'chip-' + tagId) {
+                    btn.style.backgroundColor = activeColor;
+                    btn.style.color = '#ffffff';
+                } else {
+                    btn.style.backgroundColor = '#f3f4f6';
+                    btn.style.color = '#4b5563';
+                }
+            });
+            executeCaseFilter();
+        }
+
+        function executeCaseFilter() {
+            const query = document.getElementById('caseSearchInput').value.toLowerCase();
+            const cards = document.querySelectorAll('.case-card');
+
+            cards.forEach(card => {
+                const title = card.querySelector('h3').innerText.toLowerCase();
+                const text = card.innerText.toLowerCase();
+                const category = card.getAttribute('data-category');
+
+                const matchesSearch = title.includes(query) || text.includes(query);
+                const matchesTag = (currentFilterTag === 'all' || category === currentFilterTag);
+
+                if (matchesSearch && matchesTag) {
+                    card.style.display = "block";
+                } else {
+                    card.style.display = "none";
+                }
+            });
+        }
+
+        // Unified Multi-Subject Chart Rendering Pipeline
+        function processChartCoreRendering() {
+            if (leftChartInstance) { leftChartInstance.destroy(); leftChartInstance = null; }
+            if (rightChartInstance) { rightChartInstance.destroy(); rightChartInstance = null; }
+
+            Chart.defaults.font.family = "'Inter', sans-serif";
+            Chart.defaults.color = '#4a5568';
+
+            const ctxLeft = document.getElementById('canvasLeftChart').getContext('2d');
+            const ctxRight = document.getElementById('canvasRightChart').getContext('2d');
+
+            if (currentSubject === 'negligence') {
+                // Left Chart: Caparo Pillars Donut
+                leftChartInstance = new Chart(ctxLeft, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Foreseeability', 'Proximity', 'Fair & Just Policy'],
+                        datasets: [{
+                            data: [33.3, 33.3, 33.4],
+                            backgroundColor: ['#9b2c2c', '#d69e2e', '#4a5568'],
+                            borderWidth: 2, borderColor: '#ffffff'
+                        }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const strings = [
+                                            " Objective foresight of potential structural harm.",
+                                            " Close, direct legal relational bond.",
+                                            " Broad public policy check evaluating impact boundaries."
+                                        ];
+                                        return strings[context.dataIndex];
+                                    }
+                                }
+                            }
+                        },
+                        cutout: '70%'
+                    }
+                });
+
+                // Right Chart: Remoteness Scale Bar Chart
+                rightChartInstance = new Chart(ctxRight, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Re Polemis (Direct)', 'Wagon Mound (Foreseeable)'],
+                        datasets: [{
+                            data: [100, 45],
+                            backgroundColor: ['#feb2b2', '#9b2c2c'],
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        scales: {
+                            y: { beginAtZero: true, max: 110, ticks: { display: false }, grid: { display: false } },
+                            x: { grid: { display: false }, ticks: { font: { size: 10 } } }
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function() { return " Metric tracking range boundary parameters."; }
+                                }
+                            }
+                        }
+                    }
+                });
+
+            } else {
+                // MALAYSIAN LEGAL SYSTEM ACTIVE INFOGRAPHIC METRIC CODES
+                // Left Chart: Sources Proportion Donut
+                leftChartInstance = new Chart(ctxLeft, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Written Laws (Enacted)', 'Judicial Precedents', 'Customary Laws & Adat'],
+                        datasets: [{
+                            data: [60, 25, 15],
+                            backgroundColor: ['#2d3748', '#718096', '#cbd5e0'],
+                            borderWidth: 2, borderColor: '#ffffff'
+                        }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return " Estimated relative structural framework priority weights.";
+                                    }
+                                }
+                            }
+                        },
+                        cutout: '70%'
+                    }
+                });
+
+                // Right Chart: Precedent Binding Index Bar Chart
+                rightChartInstance = new Chart(ctxRight, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Federal Court', 'Court of Appeal', 'High Court', 'Subordinate'],
+                        datasets: [{
+                            data: [100, 80, 60, 20],
+                            backgroundColor: ['#1a202c', '#2d3748', '#4a5568', '#a0aec0'],
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        scales: {
+                            y: { beginAtZero: true, max: 110, ticks: { display: false }, grid: { display: false } },
+                            x: { grid: { display: false }, ticks: { font: { size: 9 } } }
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function() { return " Binding Authority Factor Scale under Stare Decisis."; }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>
